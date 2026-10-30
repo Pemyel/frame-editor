@@ -1310,16 +1310,23 @@
     function fmet(c, l) {
       c.font = fontStr(l);
       const m = c.measureText('Hg');
-      const A = m.fontBoundingBoxAscent, D = m.fontBoundingBoxDescent, ok = A > 0;
-      let sh = 0;
-      if (l.al == 'center' && l.text) {
-        c.textAlign = 'center';
+      const A = m.fontBoundingBoxAscent, ok = A > 0;
+      let sh = 0, ink = 0, top = 0;
+      if (l.text) {
+        c.textAlign = l.al == 'center' ? 'center' : 'left';
         const t = c.measureText(l.text);
-        if (t.actualBoundingBoxRight != null) sh = -(t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2
+        ink = Math.max(0, t.actualBoundingBoxDescent || 0);
+        top = Math.max(0, t.actualBoundingBoxAscent || 0);
+        if (l.al == 'center' && t.actualBoundingBoxRight != null) sh = -(t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2
       }
-      return { A: ok ? A : l.fs * .95, D: ok ? D : l.fs * .25, sh }
+      const a = ok ? A : l.fs * .95;
+      // Upright text: baseline sits half the font ascender height below Y.
+      // Rotated text: the game centres the visible ink itself on (X, Y).
+      const rot = ((l.ang % 360) + 360) % 360 !== 0;
+      const base = rot ? (top - ink) / 2 : a / 2;
+      return { sh, base, mid: base - (top - ink) / 2 }
     }
-    function drawLayer(c, l) { const m = fmet(c, l); c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'alphabetic'; c.fillText(l.text, m.sh, m.A / 2); c.restore() }
+    function drawLayer(c, l) { const m = fmet(c, l); c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'alphabetic'; c.fillText(l.text, m.sh, m.base); c.restore() }
     let _p; function pat() { if (_p) return _p; const q = Math.round(12 * dpr), c = document.createElement('canvas'); c.width = c.height = q * 2; const x = c.getContext('2d'); x.fillStyle = '#27272c'; x.fillRect(0, 0, q * 2, q * 2); x.fillStyle = '#1d1d21'; x.fillRect(0, 0, q, q); x.fillRect(q, q, q, q); return _p = ctx.createPattern(c, 'repeat') }
 
     function base(c, t, ck) {
@@ -1517,7 +1524,7 @@
       tx.font = fontStr(l);
       const fm = fmet(tx, l); tx.font = fontStr(l);
       const w = tx.measureText(l.text || ' ').width, x = (l.al == 'left' ? 0 : l.al == 'right' ? -w : -w / 2) + fm.sh, h = l.fs * .62;
-      const o = fm.D / 2;
+      const o = fm.mid;
       return [x - 8, -h - 4 + o, x + w + 8, h + 4 + o]
     }
 
