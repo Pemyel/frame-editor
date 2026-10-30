@@ -1,1 +1,0 @@
-Put the font files here with the exact file names from the Discord font list (e.g. cambria-bold.ttf).
