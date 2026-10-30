@@ -1848,7 +1848,7 @@
     function resetText() {
       const t = T(), l = L();
       if (l.k === 'Print') l.text = t.size === 'T1' ? '9999' : '999';
-      else l.text = 'NAME';
+      else l.text = 'Name';
       l.on = (t.size === 'T3' && l.k === 'Name') ? false : true;
       render(); toast('Reset text');
     }
@@ -1867,7 +1867,7 @@
         l.bold = false;
       }
       l.ang = 0; l.hex = '#ffffff'; l.al = 'center'; l.mir = false;
-      render(); toast('Reset typography');
+      render(); toast('Reset typo');
     }
 
     function resetPos() {
