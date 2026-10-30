@@ -268,7 +268,7 @@
     }
 
     aside {
-      width: clamp(280px, 25vw, 360px);
+      width: clamp(280px, 26vw, 380px);
       border-left: 1px solid #111;
       background: #232323;
       overflow-y: auto;
@@ -346,6 +346,12 @@
       gap: 8px
     }
 
+    .r3-eq {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px
+    }
+
     .r3 {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr);
@@ -408,18 +414,20 @@
 
     .chip {
       height: auto;
-      min-height: 42px;
+      min-height: 44px;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0;
-      padding: 4px 10px;
+      gap: 2px;
+      padding: 6px 10px;
       font-size: 11px;
-      color: var(--mu)
+      color: var(--mu);
+      text-align: left;
     }
 
     .chip b {
       color: var(--fg);
-      font: 600 13px ui-monospace, monospace
+      font: 600 12px ui-monospace, monospace;
+      word-break: break-all;
     }
 
     .pop {
@@ -1248,8 +1256,8 @@
     }
 
     const defFont = () => FONTS[0] || 'sans-serif';
-    const T1F = { Print: { font: 'Cambria Font For Windows', fs: 34, bold: true }, Name: { font: 'Arya Bold', fs: 36, bold: false } };
-    const T2F = { Print: { font: 'Birthstone Regular', fs: 69, bold: false }, Name: { font: 'Ephesis Regular', fs: 98, bold: false } };
+    const T1F = { Print: { font: 'Cambria Font For Windows', fs: 34, bold: true }, Name: { font: 'Arya Bold', fs: 36, bold: false }, Series: { font: 'Arya Bold', fs: 30, bold: false } };
+    const T2F = { Print: { font: 'Birthstone Regular', fs: 68, bold: false }, Name: { font: 'Ephesis Regular', fs: 97, bold: false }, Series: { font: 'Ephesis Regular', fs: 68, bold: false } };
 
     const cv = $('#cv'), ov = $('#ov'), ctx = cv.getContext('2d'), octx = ov.getContext('2d');
     const tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true });
@@ -1265,18 +1273,22 @@
       const [w, h] = SZ[size];
       let pF = defFont(), pFs = 51, pB = false;
       let nF = defFont(), nFs = 36, nB = false;
+      let sF = defFont(), sFs = 30, sB = false;
       if (size === 'T1') {
         pF = T1F.Print.font; pFs = T1F.Print.fs; pB = T1F.Print.bold;
         nF = T1F.Name.font; nFs = T1F.Name.fs; nB = T1F.Name.bold;
+        sF = T1F.Series.font; sFs = T1F.Series.fs; sB = T1F.Series.bold;
       } else if (size === 'T2') {
         pF = T2F.Print.font; pFs = T2F.Print.fs; pB = T2F.Print.bold;
         nF = T2F.Name.font; nFs = T2F.Name.fs; nB = T2F.Name.bold;
+        sF = T2F.Series.font; sFs = T2F.Series.fs; sB = T2F.Series.bold;
       }
       return init({
         id: 1, size, w, h, img: null, sel: 0,
         layers: [
           { ...mkL('Print', size == 'T1' ? '9999' : '999', pFs, 0, Math.round(w / 2), 64, '#ffffff'), font: pF, bold: pB },
-          { ...mkL('Name', 'NAME', nFs, 0, Math.round(w / 2), h - 70, '#ffffff'), font: nF, bold: nB, on: size != 'T3' }
+          { ...mkL('Name', 'NAME', nFs, 0, Math.round(w / 2), h - 70, '#ffffff'), font: nF, bold: nB, on: size != 'T3' },
+          { ...mkL('Series', 'SERIES', sFs, 0, Math.round(w / 2), h - 35, '#ffffff'), font: sF, bold: sB, on: false }
         ]
       });
     }
@@ -1297,12 +1309,45 @@
       return { x: dx, y: dy, w: dw, h: dh };
     }
 
-    function drawLayer(c, l) { c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'middle'; c.fillText(l.text, 0, l.fs * .03 + 1); c.restore() }
-    let _p; function pat() { if (_p) return _p; const q = Math.round(12 * dpr), c = document.createElement('canvas'); c.width = c.height = q * 2; const x = c.getContext('2d'); x.fillStyle = '#27272c'; x.fillRect(0, 0, q * 2, q * 2); x.fillStyle = '#1d1d21'; x.fillRect(0, 0, q, q); x.fillRect(q, q, q, q); return _p = ctx.createPattern(c, 'repeat') }
+    /* ACCURATE FONT METRICS & CENTERING (Matches Pillow anchor="mm") */
+    function getFontYOffset(c, l) {
+      c.font = fontStr(l);
+      const m = c.measureText(l.text || ' ');
+      if (m.actualBoundingBoxAscent !== undefined && m.actualBoundingBoxDescent !== undefined) {
+        return (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+      }
+      return l.fs * 0.35;
+    }
+
+    function drawLayer(c, l) {
+      c.save();
+      c.translate(l.x, l.y);
+      c.rotate(-l.ang * Math.PI / 180);
+      c.scale(l.mir ? -1 : 1, 1);
+      c.font = fontStr(l);
+      c.textAlign = l.al;
+      c.textBaseline = 'alphabetic';
+      const yOff = getFontYOffset(c, l);
+      c.fillText(l.text, 0, yOff);
+      c.restore();
+    }
+
+    let _p; function pat() {
+      if (_p) return _p;
+      const q = Math.round(12 * dpr), c = document.createElement('canvas');
+      c.width = c.height = q * 2;
+      const x = c.getContext('2d');
+      x.fillStyle = '#27272c';
+      x.fillRect(0, 0, q * 2, q * 2);
+      x.fillStyle = '#1d1d21';
+      x.fillRect(0, 0, q, q);
+      x.fillRect(q, q, q, q);
+      return _p = ctx.createPattern(c, 'repeat');
+    }
 
     function base(c, t, ck) {
       if (ck) {
-        c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = pat(); c.fillRect(0, 0, c.canvas.width, c.canvas.height); c.restore()
+        c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = pat(); c.fillRect(0, 0, c.canvas.width, c.canvas.height); c.restore();
       }
       if (t.img) {
         const r = imgRect(t);
@@ -1311,13 +1356,48 @@
     }
 
     function paintNative(c, t) {
-      c.setTransform(1, 0, 0, 1, 0, 0); base(c, t); if (tmp.width != t.w || tmp.height != t.h) { tmp.width = t.w; tmp.height = t.h }
-      t.layers.forEach(l => { if (!l.on || !l.text) return; tx.clearRect(0, 0, t.w, t.h); tx.fillStyle = l.hex; drawLayer(tx, l); const d = tx.getImageData(0, 0, t.w, t.h), a = d.data; for (let i = 3; i < a.length; i += 4)a[i] = a[i] > 127 ? 255 : 0; tx.putImageData(d, 0, 0); c.drawImage(tmp, 0, 0) })
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      base(c, t);
+      if (tmp.width != t.w || tmp.height != t.h) { tmp.width = t.w; tmp.height = t.h }
+      t.layers.forEach(l => {
+        if (!l.on || !l.text) return;
+        tx.clearRect(0, 0, t.w, t.h);
+        tx.fillStyle = l.hex;
+        drawLayer(tx, l);
+        const d = tx.getImageData(0, 0, t.w, t.h), a = d.data;
+        for (let i = 3; i < a.length; i += 4) a[i] = a[i] > 127 ? 255 : 0;
+        tx.putImageData(d, 0, 0);
+        c.drawImage(tmp, 0, 0);
+      });
     }
 
     let ct; const sched = () => { clearTimeout(ct); ct = setTimeout(commit, 350) };
-    function commit() { const t = T(); if (!t) return; const j = J(t), h = t.hist[t.hp]; if (j == h.j && t.img == h.img) return; t.hist = t.hist.slice(0, t.hp + 1); t.hist.push({ j, img: t.img }); if (t.hist.length > 100) t.hist.shift(); t.hp = t.hist.length - 1; sync() }
-    function undo(d) { clearTimeout(ct); commit(); const t = T(); if (!t) return; const p = t.hp + d; if (p < 0 || p >= t.hist.length) return; t.hp = p; const h = t.hist[p], o = JSON.parse(h.j); t.layers = o.layers; t.size = o.size;[t.w, t.h] = SZ[o.size]; t.img = h.img; if (t.img && !t.sm) prep(t); t.sel = Math.min(t.sel, 1); fit() }
+    function commit() {
+      const t = T(); if (!t) return;
+      const j = J(t), h = t.hist[t.hp];
+      if (j == h.j && t.img == h.img) return;
+      t.hist = t.hist.slice(0, t.hp + 1);
+      t.hist.push({ j, img: t.img });
+      if (t.hist.length > 100) t.hist.shift();
+      t.hp = t.hist.length - 1;
+      sync();
+    }
+
+    function undo(d) {
+      clearTimeout(ct); commit();
+      const t = T(); if (!t) return;
+      const p = t.hp + d;
+      if (p < 0 || p >= t.hist.length) return;
+      t.hp = p;
+      const h = t.hist[p], o = JSON.parse(h.j);
+      t.layers = o.layers;
+      t.size = o.size;
+      [t.w, t.h] = SZ[o.size];
+      t.img = h.img;
+      if (t.img && !t.sm) prep(t);
+      t.sel = Math.min(t.sel, t.layers.length - 1);
+      fit();
+    }
 
     let lockPath;
     try {
@@ -1344,10 +1424,8 @@
         octx.stroke();
 
         const s = z * 0.95;
-        const lx = b[2];
-        const ly = b[1];
         octx.save();
-        octx.translate(lx, ly);
+        octx.translate(b[2], b[1]);
         octx.scale(s, s);
         octx.translate(-16, -2);
         octx.fillStyle = '#ef4444';
@@ -1413,7 +1491,7 @@
       octx.imageSmoothingQuality = 'high';
       t.layers.forEach(q => { if (q.on && q.text) { octx.fillStyle = q.hex; drawLayer(octx, q) } });
       const l = L(); if (l && l.on) hl(l);
-      sync(); sched()
+      sync(); sched();
     }
 
     const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4) }, lum = c => .2126 * lin(c[0]) + .7152 * lin(c[1]) + .0722 * lin(c[2]), cr = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) };
@@ -1493,9 +1571,13 @@
 
     function box(l) {
       tx.font = fontStr(l);
-      const w = tx.measureText(l.text || ' ').width, x = l.al == 'left' ? 0 : l.al == 'right' ? -w : -w / 2, h = l.fs * .62;
-      const o = l.fs * .03 + 1;
-      return [x - 8, -h - 4 + o, x + w + 8, h + 4 + o]
+      const m = tx.measureText(l.text || ' ');
+      const w = m.width;
+      const x = l.al == 'left' ? 0 : l.al == 'right' ? -w : -w / 2;
+      const asc = m.actualBoundingBoxAscent ?? (l.fs * 0.7);
+      const desc = m.actualBoundingBoxDescent ?? (l.fs * 0.2);
+      const yOff = (asc - desc) / 2;
+      return [x - 8, yOff - asc - 4, x + w + 8, yOff + desc + 4];
     }
 
     function hit(l, px, py) {
@@ -1560,12 +1642,12 @@
       stg.classList.toggle('pip', isPip);
       if (isPip) {
         prepPick();
-        toast('Click canvas to pick color (Esc to cancel)')
+        toast('Click canvas to pick color (Esc to cancel)');
       } else {
         $('#loupe').classList.remove('on');
         $('#pipReticle').classList.remove('on');
       }
-      sync()
+      sync();
     }
 
     function samplePt(e) {
@@ -1597,7 +1679,7 @@
       const [px, py] = pt(e), t = T(), l0 = L(), z = zone(px, py, e.pointerType != 'mouse');
       if (z && z.t == 'rs') { rs = { d: Math.hypot(px - l0.x, py - l0.y) || 1, fs: l0.fs }; drag = null; return }
       if (z && z.t == 'rot') { rt = { a: Math.atan2(py - l0.y, px - l0.x), ang: l0.ang }; drag = null; return }
-      let i = [1, 0].find(i => hit(t.layers[i], px, py));
+      let i = [2, 1, 0].find(i => t.layers[i] && hit(t.layers[i], px, py));
       if (i == null) i = t.sel;
       t.sel = i;
       const l = t.layers[i];
@@ -1684,15 +1766,20 @@
     }, { passive: false });
 
     const FLD = (k, u, mn) => `<div class="fld"><input type="number" data-k="${k}" ${mn ? 'min="1"' : ''} inputmode="numeric"><i>${u}</i></div>`;
-    $('#side').innerHTML = `<div id="grab"><i></i></div><div id="pillSlot"></div><div id="panel"><div class="grp"><div class="r2" id="lsel"><button class="btn" data-sel="0">Print</button><button class="btn" data-sel="1">Name</button></div></div>
+    $('#side').innerHTML = `<div id="grab"><i></i></div><div id="pillSlot"></div><div id="panel">
+<div class="grp"><div class="r3-eq" id="lsel"><button class="btn" data-sel="0">Print</button><button class="btn" data-sel="1">Name</button><button class="btn" data-sel="2">Series</button></div></div>
 <div class="grp" data-g="text"><div class="gt"><span>Text</span><span class="gh-actions"><button class="btn rst-btn" data-rst="text" data-tip="Reset text">${I(IC.rst)}</button><i class="grip" data-grip>${I(IC.grip)}</i></span></div><div style="display:flex;gap:8px"><div class="fld" style="flex:1"><input type="text" data-k="text"></div><button class="btn" data-eye data-tip="Show / hide (H)">${I(IC.eye)}</button></div></div>
 <div class="grp" data-g="typo"><div class="gt"><span>Typography</span><span class="gh-actions"><button class="btn rst-btn" data-rst="typo" data-tip="Reset typography">${I(IC.rst)}</button><i class="grip" data-grip>${I(IC.grip)}</i></span></div><button class="dd" id="fontb"><span></span>${I(IC.chev)}</button>
 <div class="r3">${FLD('fs', 'px', 1)}${FLD('ang', '\u00b0')}<div class="fld"><button class="sw" data-sw data-tip="Palette"></button><input type="text" class="hx" data-k="hex" spellcheck="false" autocapitalize="off"></div></div>
 <div class="gt" id="sugt" style="display:none">Suggested colors</div><div id="sug" style="display:flex;gap:8px;flex-wrap:wrap"></div>
 <div style="display:flex;gap:8px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:1">${[['al-left', 'l', 'Left (L)'], ['al-center', 'c', 'Center (C)'], ['al-right', 'r', 'Right (R)'], ['mir', 'mir', 'Mirror (M)']].map(a => `<button class="btn" data-a="${a[0]}" data-tip="${a[2]}">${I(IC[a[1]])}</button>`).join('')}</div><button class="btn" data-a="pipette" data-tip="Pick color from canvas (I)">${I(IC.pipette)}</button></div></div>
-<div class="grp" data-g="pos"><div class="gt"><span>Position</span><span class="gh-actions"><button class="btn rst-btn" data-rst="pos" data-tip="Reset position">${I(IC.rst)}</button><i class="grip" data-grip>${I(IC.grip)}</i></span></div><div class="r2">${FLD('x', 'X')}${FLD('y', 'Y')}</div>
-<div class="r2"><button class="btn chip" data-cp="xy">Coordinates<b data-v="xy"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="ang">Angle<b data-v="ang"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="fs">Font size<b data-v="fs"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="hex">Hex<b data-v="hex"></b><span class="ci">${I(IC.cp)}</span></button></div>
-<button class="btn" data-cp="all">${I(IC.cp)} Copy all values</button></div></div>`;
+<div class="grp" data-g="pos"><div class="gt"><span>Position</span><span class="gh-actions"><button class="btn rst-btn" data-rst="pos" data-tip="Reset position">${I(IC.rst)}</button><i class="grip" data-grip>${I(IC.grip)}</i></span></div><div class="r2">${FLD('x', 'X')}${FLD('y', 'Y')}</div></div>
+<div class="grp" data-g="form"><div class="gt"><span>Form Submission Outputs</span></div>
+<div class="r2"><button class="btn chip" data-cpf="coords">6 Coordinates<b data-fval="coords"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cpf="angles">3 Angles<b data-fval="angles"></b><span class="ci">${I(IC.cp)}</span></button></div>
+<div class="r2"><button class="btn chip" data-cpf="vis">3 Visibilities<b data-fval="vis"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cpf="align">3 Alignments<b data-fval="align"></b><span class="ci">${I(IC.cp)}</span></button></div>
+<div class="r2"><button class="btn chip" data-cpf="colors">3 Hex Colors<b data-fval="colors"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cpf="sizes">3 Sizes<b data-fval="sizes"></b><span class="ci">${I(IC.cp)}</span></button></div>
+<button class="btn" data-cp="all" style="margin-top:4px">${I(IC.cp)} Copy All Form Values</button>
+<button class="btn" data-cp="raw">${I(IC.cp)} Copy Raw (6 Lines)</button></div></div>`;
 
     const PILL = [['undo', 'Undo (Ctrl+Z)', 'undo'], ['redo', 'Redo (Ctrl+Y)', 'redo'], '-', ['pipette', 'Pick color from canvas (I)', 'pipette'], '-', ['mn', 'Zoom out (-)', 'zo'], ['pl', 'Zoom in (+)', 'zi'], ['fit', 'Fit (0)', 'fit']];
     $('#pill').innerHTML = PILL.map(x => x == '-' ? '<hr>' : `<button class="btn" data-tip="${x[1]}" data-a="${x[2]}">${I(IC[x[0]])}</button>`).join('');
@@ -1726,10 +1813,18 @@
       o && o.scrollIntoView({ block: 'center' });
     }
 
-    function pickFont(f) { ddl.classList.remove('on'); const l = L(); l.font = f; l.bold = false; document.fonts.load(fontStr(l)).then(render); render() }
+    function pickFont(f) {
+      ddl.classList.remove('on');
+      const l = L();
+      l.font = f;
+      l.bold = false;
+      document.fonts.load(fontStr(l)).then(render);
+      render();
+    }
     document.addEventListener('pointerdown', e => { if (!e.target.closest('.ddl,#fontb')) ddl.classList.remove('on') }, true);
 
-    const GK = 'frame-editor-order'; try { JSON.parse(localStorage.getItem(GK) || '[]').forEach(g => { const e = $(`#panel [data-g=${g}]`); e && $('#panel').append(e) }) } catch (e) { }
+    const GK = 'frame-editor-order';
+    try { JSON.parse(localStorage.getItem(GK) || '[]').forEach(g => { const e = $(`#panel [data-g=${g}]`); e && $('#panel').append(e) }) } catch (e) { }
     let dg = null, gy = 0, ty = 0; const pn = $('#panel');
     const slide = (el, d) => { if (!d) return; el.style.transition = 'none'; el.style.transform = `translateY(${d}px)`; el.offsetHeight; el.style.transition = 'transform .22s cubic-bezier(.2,.9,.3,1)'; el.style.transform = '' };
     const GS = () => [...pn.querySelectorAll('[data-g]')];
@@ -1802,6 +1897,29 @@
     $('#sidePos').onclick = () => setSidePos(sidePos === 'left' ? 'right' : 'left');
 
     const STEP = { fs: [1, 10], ang: [1, 15], x: [1, 10], y: [1, 10] };
+
+    function getFormOutputs() {
+      const t = T(); if (!t) return null;
+      const [P, N, S] = t.layers;
+      const sx = (S && S.on) ? S.x : 0;
+      const sy = (S && S.on) ? S.y : 0;
+      const sang = (S && S.on) ? S.ang : 0;
+      
+      const px = P.on ? P.x : 0;
+      const py = P.on ? P.y : 0;
+      const nx = N.on ? N.x : 0;
+      const ny = N.on ? N.y : 0;
+
+      const coords = `${px}, ${py}, ${nx}, ${ny}, ${sx}, ${sy}`;
+      const angles = `${P.on ? P.ang : 0}, ${N.on ? N.ang : 0}, ${sang}`;
+      const vis = `${Boolean(P.on)},${Boolean(N.on)},${Boolean(S && S.on)}`;
+      const align = `${P.al},${N.al},${S ? S.al : 'center'}`;
+      const colors = `${P.hex.toUpperCase()},${N.hex.toUpperCase()},${(S && S.on) ? S.hex.toUpperCase() : '#000000'}`;
+      const sSize = (S && S.on) ? S.fs : 'default';
+      const sizes = `${P.fs},${N.fs},${sSize}`;
+      return { coords, angles, vis, align, colors, sizes };
+    }
+
     function sync() {
       const t = T(); if (!t) return;
       const l = L(); if (!l) return;
@@ -1822,8 +1940,11 @@
       $('#fontb span').textContent = cleanDisplayName(fi.name);
       $('#fontb span').style.fontFamily = `"${l.font}",serif`;
 
-      const V = { xy: `${l.x}, ${l.y}`, ang: l.ang, fs: l.fs, hex: l.hex.toUpperCase() };
-      document.querySelectorAll('[data-v]').forEach(b => b.textContent = V[b.dataset.v]);
+      const fo = getFormOutputs();
+      if (fo) {
+        document.querySelectorAll('[data-fval]').forEach(b => b.textContent = fo[b.dataset.fval]);
+      }
+
       $('#st').textContent = `${l.k}  (${l.x}, ${l.y})  ${l.ang}\u00b0`;
       document.querySelectorAll('#sizes button').forEach(b => b.classList.toggle('on', b.dataset.s == t.size));
       $('#rmImg').disabled = !t.img;
@@ -1848,8 +1969,9 @@
     function resetText() {
       const t = T(), l = L();
       if (l.k === 'Print') l.text = t.size === 'T1' ? '9999' : '999';
-      else l.text = 'Name';
-      l.on = (t.size === 'T3' && l.k === 'Name') ? false : true;
+      else if (l.k === 'Name') l.text = 'Name';
+      else l.text = 'Series';
+      l.on = (l.k === 'Series' || (t.size === 'T3' && l.k === 'Name')) ? false : true;
       render(); toast('Reset text');
     }
 
@@ -1859,7 +1981,7 @@
         const f = T1F[l.k] || { font: defFont(), fs: 34, bold: false };
         l.font = f.font; l.fs = f.fs; l.bold = f.bold;
       } else if (t.size === 'T2') {
-        const f = T2F[l.k] || { font: defFont(), fs: l.k === 'Print' ? 69 : 98, bold: false };
+        const f = T2F[l.k] || { font: defFont(), fs: l.k === 'Print' ? 68 : (l.k === 'Name' ? 97 : 68), bold: false };
         l.font = f.font; l.fs = f.fs; l.bold = false;
       } else {
         l.font = defFont();
@@ -1873,7 +1995,7 @@
     function resetPos() {
       const t = T(), l = L();
       l.x = Math.round(t.w / 2);
-      l.y = l.k === 'Print' ? 64 : (t.h - 70);
+      l.y = l.k === 'Print' ? 64 : (l.k === 'Name' ? (t.h - 70) : (t.h - 35));
       render(); toast('Reset position');
     }
 
@@ -1899,7 +2021,14 @@
       else if (d.col) { L().hex = d.col; render() }
       else if (d.a) act(d.a);
       else if (d.eye != null) { const l = L(); l.on = !l.on; render() }
-      else if (d.cp) { const l = L(); d.cp == 'all' ? copyAll() : copy({ xy: `${l.x}, ${l.y}`, ang: l.ang, fs: l.fs, hex: l.hex.toUpperCase() }[d.cp]) }
+      else if (d.cpf) {
+        const fo = getFormOutputs();
+        if (fo && fo[d.cpf]) copy(fo[d.cpf]);
+      }
+      else if (d.cp) {
+        if (d.cp === 'all') copyAll();
+        else if (d.cp === 'raw') copyRaw();
+      }
       else if (d.sw != null) openPick(b)
     });
 
@@ -1945,7 +2074,7 @@
         });
       } else if (s === 'T2') {
         t.layers.forEach(l => {
-          const f = T2F[l.k] || { font: defFont(), fs: l.k === 'Print' ? 73 : 92, bold: false };
+          const f = T2F[l.k] || { font: defFont(), fs: l.k === 'Print' ? 68 : (l.k === 'Name' ? 97 : 68), bold: false };
           l.font = FONTS.includes(f.font) ? f.font : defFont();
           l.fs = f.fs;
           l.bold = false;
@@ -2023,17 +2152,17 @@
     function copy(v) { navigator.clipboard.writeText(String(v)).then(() => toast('Copied ' + v), () => toast('Copy failed')) }
 
     function copyAll() {
-      const s = T().layers.map(l => {
-        const fi = parseFont(l.font);
-        const ftype = l.bold ? 'Bold' : fi.type;
-        return `Hex: \`${l.hex.toUpperCase()}\`
-${l.k} Coordinates: \`${l.x}, ${l.y}\`
-${l.k} Angle: \`${l.ang}\`
-${l.k} Font Size: \`${l.fs}\`
-${l.k} Font: \`${fi.name}\`
-${l.k} Font Type: \`${ftype}\``;
-      }).join('\n\n');
-      copy(s);
+      const fo = getFormOutputs();
+      if (!fo) return;
+      const formatted = `Enter 6 coordinates:\n${fo.coords}\n\nEnter 3 angles:\n${fo.angles}\n\nEnter 3 visibilities:\n${fo.vis}\n\nEnter 3 alignments:\n${fo.align}\n\nEnter 3 hex colors:\n${fo.colors}\n\nEnter 3 sizes:\n${fo.sizes}`;
+      copy(formatted);
+    }
+
+    function copyRaw() {
+      const fo = getFormOutputs();
+      if (!fo) return;
+      const raw = `${fo.coords}\n${fo.angles}\n${fo.vis}\n${fo.align}\n${fo.colors}\n${fo.sizes}`;
+      copy(raw);
     }
 
     $('#exp').onclick = exp;
@@ -2156,7 +2285,7 @@ ${l.k} Font Type: \`${ftype}\``;
       else if (k == '-') return act('zo');
       else if (k == '0') return fit();
       else {
-        const x = { p: 'sel0', n: 'sel1', l: 'al-left', c: 'al-center', r: 'al-right', m: 'mir', u: 'upl' }[c];
+        const x = { p: 'sel0', n: 'sel1', s: 'sel2', l: 'al-left', c: 'al-center', r: 'al-right', m: 'mir', u: 'upl' }[c];
         if (c == 'h') l.on = !l.on;
         else if (x) return act(x);
         else return
@@ -2164,6 +2293,7 @@ ${l.k} Font Type: \`${ftype}\``;
       render()
     });
 
+    document.fonts.ready.then(() => render());
     document.fonts.addEventListener('loadingdone', () => render());
 
     document.addEventListener('paste', e => {
@@ -2201,7 +2331,7 @@ ${l.k} Font Type: \`${ftype}\``;
     new ResizeObserver(() => fit()).observe($('#stage'));
 
     // Initialize state & mount
-    tab = mk('T1');
+    tab = mk('T2');
     setSidePos(sidePos);
     render();
   </script>
