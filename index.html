@@ -1297,7 +1297,22 @@
       return { x: dx, y: dy, w: dw, h: dh };
     }
 
-    function drawLayer(c, l) { c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'middle'; c.fillText(l.text, 0, l.fs * .03 + 1); c.restore() }
+    // The game anchors text from the font's own metrics, so we do the same instead of using fixed fudge values:
+    //  - Y: baseline sits at Y + (font ascender height / 2)
+    //  - X (center alignment): the glyph ink, not the advance width, is centered on X
+    function fmet(c, l) {
+      c.font = fontStr(l);
+      const m = c.measureText('Hg');
+      const A = m.fontBoundingBoxAscent, D = m.fontBoundingBoxDescent, ok = A > 0;
+      let sh = 0;
+      if (l.al == 'center' && l.text) {
+        c.textAlign = 'center';
+        const t = c.measureText(l.text);
+        if (t.actualBoundingBoxRight != null) sh = -(t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2
+      }
+      return { A: ok ? A : l.fs * .95, D: ok ? D : l.fs * .25, sh }
+    }
+    function drawLayer(c, l) { const m = fmet(c, l); c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'alphabetic'; c.fillText(l.text, m.sh, m.A / 2); c.restore() }
     let _p; function pat() { if (_p) return _p; const q = Math.round(12 * dpr), c = document.createElement('canvas'); c.width = c.height = q * 2; const x = c.getContext('2d'); x.fillStyle = '#27272c'; x.fillRect(0, 0, q * 2, q * 2); x.fillStyle = '#1d1d21'; x.fillRect(0, 0, q, q); x.fillRect(q, q, q, q); return _p = ctx.createPattern(c, 'repeat') }
 
     function base(c, t, ck) {
@@ -1493,8 +1508,9 @@
 
     function box(l) {
       tx.font = fontStr(l);
-      const w = tx.measureText(l.text || ' ').width, x = l.al == 'left' ? 0 : l.al == 'right' ? -w : -w / 2, h = l.fs * .62;
-      const o = l.fs * .03 + 1;
+      const fm = fmet(tx, l); tx.font = fontStr(l);
+      const w = tx.measureText(l.text || ' ').width, x = (l.al == 'left' ? 0 : l.al == 'right' ? -w : -w / 2) + fm.sh, h = l.fs * .62;
+      const o = fm.D / 2;
       return [x - 8, -h - 4 + o, x + w + 8, h + 4 + o]
     }
 
@@ -2020,20 +2036,21 @@
       setTimeout(() => d.remove(), 1300)
     }
 
-    function copy(v) { navigator.clipboard.writeText(String(v)).then(() => toast('Copied ' + v), () => toast('Copy failed')) }
+    function copy(v, msg) { navigator.clipboard.writeText(String(v)).then(() => toast(msg || 'Copied ' + v), () => toast('Copy failed')) }
 
+    // One line per bot input, in the bot's field order. Series isn't editable here, so it stays at its off/zero values.
     function copyAll() {
-      const s = T().layers.map(l => {
-        const fi = parseFont(l.font);
-        const ftype = l.bold ? 'Bold' : fi.type;
-        return `Hex: \`${l.hex.toUpperCase()}\`
-${l.k} Coordinates: \`${l.x}, ${l.y}\`
-${l.k} Angle: \`${l.ang}\`
-${l.k} Font Size: \`${l.fs}\`
-${l.k} Font: \`${fi.name}\`
-${l.k} Font Type: \`${ftype}\``;
-      }).join('\n\n');
-      copy(s);
+      const t = T(), P = t.layers.find(l => l.k == 'Print') || t.layers[0], N = t.layers.find(l => l.k == 'Name') || t.layers[1];
+      const hx = l => l.hex.toUpperCase();
+      const s = [
+        `Coordinates: ${[P.x, P.y, N.x, N.y, 0, 0].join(', ')}`,
+        `Angles: ${[P.ang, N.ang, 0].join(', ')}`,
+        `Visibilities: ${[!!P.on, !!N.on, false].join(',')}`,
+        `Alignments: ${[P.al, N.al, 'left'].join(',')}`,
+        `Hex colors: ${[hx(P), hx(N), '#FFFFFF'].join(',')}`,
+        `Sizes: ${[P.fs, N.fs, 'default'].join(',')}`
+      ].join('\n');
+      copy(s, 'Copied all values');
     }
 
     $('#exp').onclick = exp;
