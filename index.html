@@ -1191,6 +1191,20 @@
       font-size: 12px
     }
 
+    .gpop:not(.fit) .rowdiv,
+    .gpop.fit .rowsz {
+      display: none
+    }
+
+    .ginfo {
+      font: 10px ui-monospace, monospace;
+      white-space: nowrap;
+      color: var(--mu);
+      text-align: right;
+      flex: 1;
+      line-height: 1.3
+    }
+
     .gsws {
       display: flex;
       gap: 8px
@@ -1488,13 +1502,19 @@
     const pcv = document.createElement('canvas'), pctx = pcv.getContext('2d', { willReadFrequently: true });
     const dpr = Math.min(devicePixelRatio || 1, 3);
     let zoom = 1, vz = 1, userZoom = false, drag = null, isPip = false, isZoom = false, tab = null;
-    const GRID = { on: false, snap: true, size: 20, color: 'white', mode: 'ink' };
+    const GRID = { on: false, snap: true, size: 20, color: 'white', mode: 'ink', fit: false, div: 8 };
     try { Object.assign(GRID, JSON.parse(localStorage.getItem('fe-grid') || '{}')) } catch (e) { }
     const saveGrid = () => { try { localStorage.setItem('fe-grid', JSON.stringify(GRID)) } catch (e) { } };
     if (GRID.mode != 'anchor') GRID.mode = 'ink';
     if (!['black', 'white', 'grey', 'red', 'green', 'yellow', 'blue'].includes(GRID.color)) GRID.color = 'white';
     const snapOn = () => GRID.on && GRID.snap && GRID.size > 0;
-    const snapV = (v, e) => snapOn() && !(e && e.altKey) ? Math.round(v / GRID.size) * GRID.size : Math.round(v);
+    // Cell size per axis. 'Fit canvas' splits the canvas into whole columns/rows so lines always land on the canvas edges.
+    function gridStep() {
+      const t = T(); if (!t || !GRID.fit) return [GRID.size, GRID.size, 0, 0];
+      const cols = Math.max(1, Math.round(GRID.div)), rows = Math.max(1, Math.round(cols * t.h / t.w));
+      return [t.w / cols, t.h / rows, cols, rows]
+    }
+    const snapV = (v, e, ax) => { if (!snapOn() || (e && e.altKey)) return Math.round(v); const sz = gridStep()[ax || 0]; return Math.round(Math.round(v / sz) * sz) };
 
     const mkL = (k, text, fs, ang, x, y, hex) => ({ k, on: true, text, font: defFont(), fs, ang, x, y, al: 'center', mir: false, hex, bold: false });
     const J = t => JSON.stringify({ layers: t.layers, size: t.size });
@@ -1569,10 +1589,10 @@
     }
     function snapInk(l, px, py, e) {
       if (!snapOn() || (e && e.altKey)) { snapGuide = null; return [Math.round(px), Math.round(py)] }
-      if (GRID.mode == 'anchor' || !l.text) { const x = snapV(px, e), y = snapV(py, e); snapGuide = { x, y }; return [x, y] }
-      const o = inkOffsets(l), sz = GRID.size;
-      const best = (v, arr) => { let bd = Infinity, r = v, line = 0; arr.forEach(off => { const tg = Math.round((v + off) / sz) * sz, d = Math.abs(tg - (v + off)); if (d < bd) { bd = d; r = tg - off; line = tg } }); return [Math.round(r), line] };
-      const [x, gx] = best(px, o.x), [y, gy] = best(py, o.y);
+      if (GRID.mode == 'anchor' || !l.text) { const x = snapV(px, e, 0), y = snapV(py, e, 1); snapGuide = { x, y }; return [x, y] }
+      const o = inkOffsets(l), gs = gridStep();
+      const best = (v, arr, sz) => { let bd = Infinity, r = v, line = 0; arr.forEach(off => { const tg = Math.round((v + off) / sz) * sz, d = Math.abs(tg - (v + off)); if (d < bd) { bd = d; r = tg - off; line = tg } }); return [Math.round(r), line] };
+      const [x, gx] = best(px, o.x, gs[0]), [y, gy] = best(py, o.y, gs[1]);
       snapGuide = { x: gx, y: gy };
       return [x, y]
     }
@@ -1585,12 +1605,12 @@
     }
 
     function drawGrid(t) {
-      const sz = GRID.size; if (!GRID.on || !(sz >= 1) || sz * vz < 4) return;
+      const [sx, sy] = gridStep(); if (!GRID.on || !(sx >= 1) || !(sy >= 1) || Math.min(sx, sy) * vz < 4) return;
       octx.save(); octx.beginPath(); octx.rect(0, 0, t.w, t.h); octx.clip();
       const st = { black: '#000', white: '#fff', grey: '#8a8a8a', red: '#ff4d4d', green: '#3ddc84', yellow: '#ffd93d', blue: '#4da3ff' }[GRID.color] || '#fff';
       octx.strokeStyle = st; octx.globalAlpha = .55; octx.lineWidth = 1 / vz; octx.beginPath();
-      for (let x = sz; x < t.w; x += sz) { octx.moveTo(x, 0); octx.lineTo(x, t.h) }
-      for (let y = sz; y < t.h; y += sz) { octx.moveTo(0, y); octx.lineTo(t.w, y) }
+      for (let x = sx; x < t.w - .01; x += sx) { octx.moveTo(x, 0); octx.lineTo(x, t.h) }
+      for (let y = sy; y < t.h - .01; y += sy) { octx.moveTo(0, y); octx.lineTo(t.w, y) }
       octx.stroke(); octx.restore()
     }
 
@@ -1710,6 +1730,7 @@
       }
       octx.imageSmoothingQuality = 'high';
       drawGrid(t); drawGuides(t);
+      try { if (gp.classList.contains('on') && GRID.fit) syncGrid() } catch (e) { }
       t.layers.forEach(q => { if (q.on && q.text) { octx.fillStyle = q.hex; drawLayer(octx, q) } });
       const l = L(); if (l && l.on) hl(l);
       sync(); sched()
@@ -1880,7 +1901,9 @@
     gp.innerHTML = `<div class="gr"><span>Show grid</span><button class="btn" data-g="on"></button></div>
 <div class="gr"><span>Snap text to grid</span><button class="btn" data-g="snap"></button></div>
 <div class="gr"><span>Snap to</span><div class="seg gm"><button data-g="mode" data-m="ink" data-tip="Visible letters (edges / centre)">Letters</button><button data-g="mode" data-m="anchor" data-tip="Text anchor point (alignment)">Anchor</button></div></div>
-<div class="gr"><span>Size</span><div class="gsz"><div class="fld"><input type="number" min="1" max="500" data-g="size" inputmode="numeric"><i>px</i></div>${[10, 25, 50].map(n => `<button class="btn" data-g="sz" data-n="${n}">${n}</button>`).join('')}</div></div>
+<div class="gr"><span>Grid</span><div class="seg gm"><button data-g="fit" data-f="0" data-tip="Fixed pixel size">Pixels</button><button data-g="fit" data-f="1" data-tip="Divide the canvas evenly, always matching its edges">Fit canvas</button></div></div>
+<div class="gr rowdiv"><span>Divisions</span><div class="gsz"><div class="fld"><input type="number" min="1" max="100" data-g="div" inputmode="numeric"><i>cols</i></div><span class="ginfo"></span></div></div>
+<div class="gr rowsz"><span>Size</span><div class="gsz"><div class="fld"><input type="number" min="1" max="500" data-g="size" inputmode="numeric"><i>px</i></div>${[10, 25, 50].map(n => `<button class="btn" data-g="sz" data-n="${n}">${n}</button>`).join('')}</div></div>
 <div class="gr"><span>Color</span></div>
 <div class="gsws">${[['black', '#000'], ['white', '#fff'], ['grey', '#8a8a8a'], ['red', '#ff4d4d'], ['green', '#3ddc84'], ['yellow', '#ffd93d'], ['blue', '#4da3ff']].map(c => `<button class="gsw" data-g="color" data-c="${c[0]}" data-tip="${c[0][0].toUpperCase() + c[0].slice(1)}" style="background:${c[1]}"></button>`).join('')}</div>`;
     document.body.append(gp);
@@ -1909,7 +1932,7 @@
     function stepInput(inp, dir, big) {
       if (inp.disabled) return;
       const k = inp.dataset.k, st = STEP[k] ? STEP[k][+big] : big ? 10 : 1, mn = inp.min !== '' ? +inp.min : -Infinity, mx = inp.max !== '' ? +inp.max : Infinity;
-      const step = big && snapOn() && (k == 'x' || k == 'y') ? GRID.size : st;
+      const step = big && snapOn() && (k == 'x' || k == 'y') ? Math.max(1, Math.round(gridStep()[k == 'x' ? 0 : 1])) : st;
       inp.value = Math.max(mn, Math.min(mx, Math.round((+inp.value || 0) + dir * step)));
       inp.dispatchEvent(new Event('input', { bubbles: true }))
     }
@@ -1928,6 +1951,11 @@
       gp.querySelector('[data-g=snap]').textContent = GRID.snap ? 'On' : 'Off';
       gp.querySelector('[data-g=snap]').classList.toggle('on', GRID.snap);
       const si = gp.querySelector('input[data-g=size]'); if (document.activeElement != si) si.value = GRID.size;
+      gp.classList.toggle('fit', GRID.fit);
+      gp.querySelectorAll('[data-g=fit]').forEach(b => b.classList.toggle('on', (b.dataset.f == '1') == GRID.fit));
+      const di = gp.querySelector('input[data-g=div]'); if (document.activeElement != di) di.value = GRID.div;
+      { const [a, b, c, r] = gridStep(); gp.querySelector('.ginfo').innerHTML = GRID.fit && c ? `${c} × ${r}<br>${+a.toFixed(1)} × ${+b.toFixed(1)} px` : '' }
+      try { fitAll() } catch (e) { }
       gp.querySelectorAll('[data-g=mode]').forEach(b => b.classList.toggle('on', b.dataset.m == GRID.mode));
       gp.querySelectorAll('[data-g=color]').forEach(b => b.classList.toggle('on', b.dataset.c == GRID.color));
       gp.querySelectorAll('[data-g=sz]').forEach(b => b.classList.toggle('on', +b.dataset.n == GRID.size));
@@ -1945,13 +1973,13 @@
     gp.addEventListener('click', e => {
       const b = e.target.closest('[data-g]'); if (!b) return; const k = b.dataset.g;
       if (k == 'on') GRID.on = !GRID.on; else if (k == 'snap') GRID.snap = !GRID.snap;
-      else if (k == 'mode') GRID.mode = b.dataset.m; else if (k == 'color') GRID.color = b.dataset.c; else if (k == 'sz') GRID.size = +b.dataset.n; else return;
+      else if (k == 'fit') GRID.fit = b.dataset.f == '1'; else if (k == 'mode') GRID.mode = b.dataset.m; else if (k == 'color') GRID.color = b.dataset.c; else if (k == 'sz') GRID.size = +b.dataset.n; else return;
       if (k != 'on' && k != 'snap' && k != 'mode') GRID.on = true;
       saveGrid(); syncGrid(); render()
     });
     gp.addEventListener('input', e => {
-      if (e.target.dataset.g != 'size') return;
-      const v = Math.round(+e.target.value); if (v >= 1 && v <= 500) { GRID.size = v; GRID.on = true; saveGrid(); syncGrid(); render() }
+      const gk = e.target.dataset.g; if (gk != 'size' && gk != 'div') return;
+      const v = Math.round(+e.target.value); if (v >= 1 && v <= (gk == 'div' ? 100 : 500)) { if (gk == 'div') { GRID.div = v; GRID.fit = true } else GRID.size = v; GRID.on = true; saveGrid(); syncGrid(); render() }
     });
     document.addEventListener('pointerdown', e => { if (!e.target.closest('#gridPop,[data-a=grid]')) gp.classList.remove('on') });
     addEventListener('resize', () => gp.classList.remove('on'));
@@ -2571,7 +2599,7 @@
       if (c == 'i') return togglePip();
       if (c == 'g') { GRID.on = !GRID.on; saveGrid(); syncGrid(); return render() }
       if (k == '1') return act('z100');
-      if (a) { e.preventDefault(); l[a[0]] += a[1] * (s ? (snapOn() ? GRID.size : 10) : 1) }
+      if (a) { e.preventDefault(); l[a[0]] += a[1] * (s ? (snapOn() ? Math.max(1, Math.round(gridStep()[a[0] == 'x' ? 0 : 1])) : 10) : 1) }
       else if (k == '[' || k == '{') l.fs = Math.max(1, l.fs - (s ? 10 : 1));
       else if (k == ']' || k == '}') l.fs += s ? 10 : 1;
       else if (k == ',' || k == '<') l.ang -= s ? 15 : 1;
