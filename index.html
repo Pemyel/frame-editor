@@ -674,27 +674,7 @@
       max-height: 258px;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 5px;
-      scrollbar-width: thin;
-      scrollbar-color: #555 transparent
-    }
-
-    .ddl-inner::-webkit-scrollbar {
-      width: 6px
-    }
-
-    .ddl-inner::-webkit-scrollbar-track {
-      background: transparent;
-      margin: 8px 0
-    }
-
-    .ddl-inner::-webkit-scrollbar-thumb {
-      background: #4a4a4a;
-      border-radius: 999px
-    }
-
-    .ddl-inner::-webkit-scrollbar-thumb:hover {
-      background: #626262
+      padding: 5px
     }
 
     .ddl button {
@@ -1150,6 +1130,249 @@
     /* FONTS_CSS_END */
   
 
+
+    .zlbl {
+      min-width: 58px;
+      font: 600 12px ui-monospace, monospace;
+      color: var(--fg)
+    }
+
+    .stage.zt {
+      cursor: zoom-in
+    }
+
+    .gpop {
+      position: fixed;
+      z-index: 60;
+      width: 268px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #262626;
+      border: 1px solid #111;
+      box-shadow: 0 16px 40px #000a;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      animation: up .2s
+    }
+
+    .gpop.on {
+      display: flex
+    }
+
+    .gpop .gr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--mu)
+    }
+
+    .gpop .gr .btn {
+      min-width: 56px;
+      height: 30px
+    }
+
+    .gpop .gsz {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .gpop .gsz .fld {
+      width: 100px
+    }
+
+    .gpop .gsz .btn {
+      height: 30px;
+      min-width: 0;
+      padding: 0 8px;
+      font-size: 12px
+    }
+
+    .gsws {
+      display: flex;
+      gap: 8px
+    }
+
+    .gsw {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #111;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 1px 2px #000a
+    }
+
+    #pill [data-a=grid].on {
+      color: var(--fg);
+      background: linear-gradient(180deg, #2a2a2a, #242424)
+    }
+
+    .gsw.on {
+      outline: 2px solid #b8f0d4;
+      outline-offset: 2px
+    }
+
+    .stage.pan {
+      cursor: grab !important
+    }
+
+    .stage.pan.grabbing {
+      cursor: grabbing !important
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+      appearance: textfield
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0
+    }
+
+    .fld:has(.stp) input[type=number] {
+      padding-left: 10px;
+      padding-right: 56px
+    }
+
+    .fld:has(.stp)>i:not(.bi) {
+      right: 30px
+    }
+
+    .gpop .gm button {
+      height: 26px;
+      padding: 0 10px;
+      font-size: 12px
+    }
+
+    .stp {
+      position: absolute;
+      right: 4px;
+      top: 4px;
+      bottom: 4px;
+      width: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .stp button {
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+      border: 1px solid #111;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #414040, #2c2c2c);
+      box-shadow: 0 1px 1px #000a;
+      color: var(--mu);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: filter .15s, transform .1s
+    }
+
+    .stp button:hover {
+      filter: brightness(1.2);
+      color: var(--fg)
+    }
+
+    .stp button:active {
+      transform: scale(.92);
+      box-shadow: inset 0 1px 3px #000b
+    }
+
+    .stp button svg {
+      width: 8px;
+      height: 8px
+    }
+
+    .stp button.u svg {
+      transform: rotate(180deg)
+    }
+
+    .fld:has(input:disabled) .stp {
+      opacity: .35;
+      pointer-events: none
+    }
+
+    @media (max-width: 820px) {
+      .stp button svg {
+        width: 9px;
+        height: 9px
+      }
+    }
+
+    /* Custom scrollbars: font list, zoomed canvas, panels */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #555 transparent
+    }
+
+    @supports selector(::-webkit-scrollbar) {
+      * {
+        scrollbar-width: auto;
+        scrollbar-color: auto
+      }
+
+      ::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+        background: transparent
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #161616;
+        border-radius: 10px;
+        margin: 3px;
+        box-shadow: inset 0 1px 3px #000c
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #4a4949, #353535) padding-box;
+        border: 3px solid transparent;
+        border-radius: 10px;
+        min-height: 36px;
+        min-width: 36px
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #5c5b5b, #444) padding-box;
+        border: 3px solid transparent
+      }
+
+      ::-webkit-scrollbar-thumb:active {
+        background: linear-gradient(180deg, #3a3a3a, #2c2c2c) padding-box;
+        border: 3px solid transparent
+      }
+
+      ::-webkit-scrollbar-button {
+        display: none;
+        width: 0;
+        height: 0
+      }
+
+      ::-webkit-scrollbar-corner {
+        background: transparent
+      }
+
+      .ddl ::-webkit-scrollbar,
+      .ddl::-webkit-scrollbar {
+        width: 12px
+      }
+    }
+
+    .pill {
+      scrollbar-width: none
+    }
+
+    .pill::-webkit-scrollbar {
+      display: none
+    }
 </style>
 </head>
 
@@ -1183,6 +1406,8 @@
   <script>
     const $ = s => document.querySelector(s), I = d => `<svg class="bi" viewBox="0 0 16 16" width="17" height="17" fill="currentColor">${d}</svg>`;
     const IC = {
+      zoom: '<path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11M13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0"/><path d="M10.344 11.742q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1 6.5 6.5 0 0 1-1.398 1.4z"/><path fill-rule="evenodd" d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5"/>',
+      grid: '<path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5zM1.5 1a.5.5 0 0 0-.5.5V5h4V1zM5 6H1v4h4zm1 4h4V6H6zm-1 1H1v3.5a.5.5 0 0 0 .5.5H5zm1 0v4h4v-4zm5 0v4h3.5a.5.5 0 0 0 .5-.5V11zm0-1h4V6h-4zm0-5h4V1.5a.5.5 0 0 0-.5-.5H11zm-1 0V1H6v4z"/>',
       up: '<path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/> <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>',
       eye: '<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/> <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>',
       mir: '<path d="M13.5 7a.5.5 0 0 0 .24-.939l-11-6A.5.5 0 0 0 2 .5v6a.5.5 0 0 0 .5.5zm.485 2.376a.5.5 0 0 1-.246.563l-11 6A.5.5 0 0 1 2 15.5v-6a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .485.376M11.539 10H3v4.658z"/>',
@@ -1262,7 +1487,14 @@
     const tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true });
     const pcv = document.createElement('canvas'), pctx = pcv.getContext('2d', { willReadFrequently: true });
     const dpr = Math.min(devicePixelRatio || 1, 3);
-    let zoom = 1, drag = null, isPip = false, tab = null;
+    let zoom = 1, vz = 1, userZoom = false, drag = null, isPip = false, isZoom = false, tab = null;
+    const GRID = { on: false, snap: true, size: 20, color: 'white', mode: 'ink' };
+    try { Object.assign(GRID, JSON.parse(localStorage.getItem('fe-grid') || '{}')) } catch (e) { }
+    const saveGrid = () => { try { localStorage.setItem('fe-grid', JSON.stringify(GRID)) } catch (e) { } };
+    if (GRID.mode != 'anchor') GRID.mode = 'ink';
+    if (!['black', 'white', 'grey', 'red', 'green', 'yellow', 'blue'].includes(GRID.color)) GRID.color = 'white';
+    const snapOn = () => GRID.on && GRID.snap && GRID.size > 0;
+    const snapV = (v, e) => snapOn() && !(e && e.altKey) ? Math.round(v / GRID.size) * GRID.size : Math.round(v);
 
     const mkL = (k, text, fs, ang, x, y, hex) => ({ k, on: true, text, font: defFont(), fs, ang, x, y, al: 'center', mir: false, hex, bold: false });
     const J = t => JSON.stringify({ layers: t.layers, size: t.size });
@@ -1311,10 +1543,11 @@
       c.font = fontStr(l);
       const m = c.measureText('Hg');
       const A = m.fontBoundingBoxAscent, ok = A > 0;
-      let sh = 0, ink = 0, top = 0;
+      let sh = 0, ink = 0, top = 0, L_ = 0, R_ = 0;
       if (l.text) {
-        c.textAlign = l.al == 'center' ? 'center' : 'left';
+        c.textAlign = l.al == 'right' ? 'right' : l.al == 'center' ? 'center' : 'left';
         const t = c.measureText(l.text);
+        L_ = t.actualBoundingBoxLeft || 0; R_ = t.actualBoundingBoxRight || 0;
         ink = Math.max(0, t.actualBoundingBoxDescent || 0);
         top = Math.max(0, t.actualBoundingBoxAscent || 0);
         if (l.al == 'center' && t.actualBoundingBoxRight != null) sh = -(t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2
@@ -1324,8 +1557,43 @@
       // Rotated text: the game centres the visible ink itself on (X, Y).
       const rot = ((l.ang % 360) + 360) % 360 !== 0;
       const base = rot ? (top - ink) / 2 : a / 2;
-      return { sh, base, mid: base - (top - ink) / 2 }
+      return { sh, base, mid: base - (top - ink) / 2, il: sh - L_, ir: sh + R_, it: base - top, ib: base + ink }
     }
+    let snapGuide = null;
+    // Offsets (from the anchor) of the visible text's left / centre / right and top / middle / bottom, after rotation + mirror.
+    function inkOffsets(l) {
+      const m = fmet(tx, l), a = -l.ang * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), mr = l.mir ? -1 : 1;
+      const pts = [[m.il, m.it], [m.ir, m.it], [m.ir, m.ib], [m.il, m.ib]].map(([x, y]) => [mr * x * cs - y * sn, mr * x * sn + y * cs]);
+      const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]), mn = Math.min(...xs), mx = Math.max(...xs), yn = Math.min(...ys), ym = Math.max(...ys);
+      return { x: [mn, (mn + mx) / 2, mx], y: [yn, (yn + ym) / 2, ym] }
+    }
+    function snapInk(l, px, py, e) {
+      if (!snapOn() || (e && e.altKey)) { snapGuide = null; return [Math.round(px), Math.round(py)] }
+      if (GRID.mode == 'anchor' || !l.text) { const x = snapV(px, e), y = snapV(py, e); snapGuide = { x, y }; return [x, y] }
+      const o = inkOffsets(l), sz = GRID.size;
+      const best = (v, arr) => { let bd = Infinity, r = v, line = 0; arr.forEach(off => { const tg = Math.round((v + off) / sz) * sz, d = Math.abs(tg - (v + off)); if (d < bd) { bd = d; r = tg - off; line = tg } }); return [Math.round(r), line] };
+      const [x, gx] = best(px, o.x), [y, gy] = best(py, o.y);
+      snapGuide = { x: gx, y: gy };
+      return [x, y]
+    }
+    function drawGuides(t) {
+      if (!snapGuide) return;
+      octx.save(); octx.beginPath(); octx.rect(0, 0, t.w, t.h); octx.clip();
+      octx.strokeStyle = '#b8f0d4'; octx.lineWidth = 1.5 / vz; octx.beginPath();
+      octx.moveTo(snapGuide.x, 0); octx.lineTo(snapGuide.x, t.h); octx.moveTo(0, snapGuide.y); octx.lineTo(t.w, snapGuide.y);
+      octx.stroke(); octx.restore()
+    }
+
+    function drawGrid(t) {
+      const sz = GRID.size; if (!GRID.on || !(sz >= 1) || sz * vz < 4) return;
+      octx.save(); octx.beginPath(); octx.rect(0, 0, t.w, t.h); octx.clip();
+      const st = { black: '#000', white: '#fff', grey: '#8a8a8a', red: '#ff4d4d', green: '#3ddc84', yellow: '#ffd93d', blue: '#4da3ff' }[GRID.color] || '#fff';
+      octx.strokeStyle = st; octx.globalAlpha = .55; octx.lineWidth = 1 / vz; octx.beginPath();
+      for (let x = sz; x < t.w; x += sz) { octx.moveTo(x, 0); octx.lineTo(x, t.h) }
+      for (let y = sz; y < t.h; y += sz) { octx.moveTo(0, y); octx.lineTo(t.w, y) }
+      octx.stroke(); octx.restore()
+    }
+
     function drawLayer(c, l) { const m = fmet(c, l); c.save(); c.translate(l.x, l.y); c.rotate(-l.ang * Math.PI / 180); c.scale(l.mir ? -1 : 1, 1); c.font = fontStr(l); c.textAlign = l.al; c.textBaseline = 'alphabetic'; c.fillText(l.text, m.sh, m.base); c.restore() }
     let _p; function pat() { if (_p) return _p; const q = Math.round(12 * dpr), c = document.createElement('canvas'); c.width = c.height = q * 2; const x = c.getContext('2d'); x.fillStyle = '#27272c'; x.fillRect(0, 0, q * 2, q * 2); x.fillStyle = '#1d1d21'; x.fillRect(0, 0, q, q); x.fillRect(q, q, q, q); return _p = ctx.createPattern(c, 'repeat') }
 
@@ -1428,18 +1696,20 @@
           l.bold = f.bold;
         });
       }
-      const k = zoom * dpr, W = Math.round(t.w * k), H = Math.round(t.h * k);
+      const k = zoom * dpr, kc = Math.min(k, 8192 / Math.max(t.w, t.h)), W = Math.round(t.w * kc), H = Math.round(t.h * kc);
       if (cv.width != W || cv.height != H) { cv.width = W; cv.height = H }
       const sg = $('#stage'), OW = Math.round(sg.clientWidth * dpr), OH = Math.round(sg.clientHeight * dpr);
       if (ov.width != OW || ov.height != OH) { ov.width = OW; ov.height = OH }
       ov.style.cssText = `left:${sg.offsetLeft}px;top:${sg.offsetTop}px;width:${sg.clientWidth}px;height:${sg.clientHeight}px`;
-      ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingQuality = 'high'; base(ctx, t, 1);
+      ctx.setTransform(kc, 0, 0, kc, 0, 0); ctx.imageSmoothingQuality = 'high'; base(ctx, t, 1);
       octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, OW, OH);
       {
         const cr = cv.getBoundingClientRect(), or = ov.getBoundingClientRect();
-        octx.setTransform(k, 0, 0, k, (cr.left - or.left) * dpr, (cr.top - or.top) * dpr)
+        vz = cr.width / t.w || zoom;
+        octx.setTransform(vz * dpr, 0, 0, vz * dpr, (cr.left - or.left) * dpr, (cr.top - or.top) * dpr)
       }
       octx.imageSmoothingQuality = 'high';
+      drawGrid(t); drawGuides(t);
       t.layers.forEach(q => { if (q.on && q.text) { octx.fillStyle = q.hex; drawLayer(octx, q) } });
       const l = L(); if (l && l.on) hl(l);
       sync(); sched()
@@ -1538,16 +1808,18 @@
     }
 
     function setZoom(z) {
-      zoom = Math.max(.2, Math.min(8, z));
+      zoom = Math.max(.1, Math.min(32, z));
       const t = T(); if (!t) return;
       $('#cw').style.width = t.w * zoom + 'px';
       $('#cw').style.height = t.h * zoom + 'px';
+      document.querySelectorAll('.zlbl').forEach(b => b.textContent = Math.round(zoom * 100) + '%');
       render()
     }
 
     function fit() {
       const t = T(); if (!t) return;
       const s = $('#stage'), c = getComputedStyle(s), aw = s.clientWidth - parseFloat(c.paddingLeft) - parseFloat(c.paddingRight), ah = s.clientHeight - parseFloat(c.paddingTop) - parseFloat(c.paddingBottom);
+      userZoom = false;
       setZoom(Math.min(aw / t.w, ah / t.h))
     }
 
@@ -1573,7 +1845,7 @@
     }
 
     const ROT = `url("data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M19 12a7 7 0 1 1-2.1-5M19 4v4.5h-4.5' stroke='#111' stroke-width='4.5'/><path d='M19 12a7 7 0 1 1-2.1-5M19 4v4.5h-4.5' stroke='#fff' stroke-width='2'/></svg>")}") 12 12, crosshair`;
-    function curFor(z) { if (isPip) return 'crosshair'; if (!z) return 'default'; if (z.t == 'mv') return 'move'; if (z.t == 'rot') return ROT; const o = pts8(L())[z.h], d = ((Math.atan2(o.p[1] - o.c[1], o.p[0] - o.c[0]) * 180 / Math.PI) % 180 + 180) % 180; return ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'][Math.round(d / 45) % 4] }
+    function curFor(z) { if (isPip) return 'crosshair'; if (isZoom) return 'zoom-in'; if (!z) return 'default'; if (z.t == 'mv') return 'move'; if (z.t == 'rot') return ROT; const o = pts8(L())[z.h], d = ((Math.atan2(o.p[1] - o.c[1], o.p[0] - o.c[0]) * 180 / Math.PI) % 180 + 180) % 180; return ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'][Math.round(d / 45) % 4] }
     const cancelLP = () => { clearTimeout(lp); lp = null };
 
     function prepPick() {
@@ -1585,8 +1857,108 @@
       paintNative(pctx, t);
     }
 
+    function zoomAt(f, cx, cy) {
+      const t = T(); if (!t) return;
+      userZoom = true;
+      const r = cv.getBoundingClientRect(), px = (cx - r.left) / zoom, py = (cy - r.top) / zoom;
+      setZoom(zoom * f);
+      const r2 = cv.getBoundingClientRect();
+      stg.scrollLeft += r2.left + px * zoom - cx; stg.scrollTop += r2.top + py * zoom - cy;
+      render()
+    }
+    const zoomMid = f => { const r = stg.getBoundingClientRect(); zoomAt(f, r.left + r.width / 2, r.top + r.height / 2) };
+    function toggleZoomTool(force) {
+      isZoom = typeof force == 'boolean' ? force : !isZoom;
+      if (isZoom && isPip) togglePip(false);
+      stg.classList.toggle('zt', isZoom);
+      stg.style.cursor = isZoom ? 'zoom-in' : '';
+      if (isZoom) toast('Click to zoom in, Alt+click to zoom out (Esc to exit)');
+      sync()
+    }
+
+    const gp = document.createElement('div'); gp.className = 'gpop'; gp.id = 'gridPop';
+    gp.innerHTML = `<div class="gr"><span>Show grid</span><button class="btn" data-g="on"></button></div>
+<div class="gr"><span>Snap text to grid</span><button class="btn" data-g="snap"></button></div>
+<div class="gr"><span>Snap to</span><div class="seg gm"><button data-g="mode" data-m="ink" data-tip="Visible letters (edges / centre)">Letters</button><button data-g="mode" data-m="anchor" data-tip="Text anchor point (alignment)">Anchor</button></div></div>
+<div class="gr"><span>Size</span><div class="gsz"><div class="fld"><input type="number" min="1" max="500" data-g="size" inputmode="numeric"><i>px</i></div>${[10, 25, 50].map(n => `<button class="btn" data-g="sz" data-n="${n}">${n}</button>`).join('')}</div></div>
+<div class="gr"><span>Color</span></div>
+<div class="gsws">${[['black', '#000'], ['white', '#fff'], ['grey', '#8a8a8a'], ['red', '#ff4d4d'], ['green', '#3ddc84'], ['yellow', '#ffd93d'], ['blue', '#4da3ff']].map(c => `<button class="gsw" data-g="color" data-c="${c[0]}" data-tip="${c[0][0].toUpperCase() + c[0].slice(1)}" style="background:${c[1]}"></button>`).join('')}</div>`;
+    document.body.append(gp);
+    const mc = document.createElement('canvas').getContext('2d');
+    function fitFld(f) {
+      const inp = f.querySelector('input[type=number]'); if (!inp || !f.querySelector('.stp')) return;
+      const u = f.querySelector(':scope>i:not(.bi)'), W = f.clientWidth; if (!W) return;
+      inp.style.fontSize = ''; const cs = getComputedStyle(inp), fsz = parseFloat(cs.fontSize);
+      mc.font = `${cs.fontWeight} ${fsz}px ${cs.fontFamily}`;
+      const tw = mc.measureText(String(inp.value || '0')).width + 2, uw = u ? u.offsetWidth : 0, avail = W - 10 - 28 - 4;
+      let pr = 56, vis = true;
+      if (u && tw + uw + 8 <= avail) pr = 28 + uw + 8; else { pr = 28; vis = false; if (tw > avail) inp.style.fontSize = Math.max(10, Math.floor(fsz * avail / tw * 10) / 10) + 'px' }
+      inp.style.paddingRight = pr + 'px'; if (u) u.style.visibility = vis ? '' : 'hidden'
+    }
+    const fitAll = () => document.querySelectorAll('.fld').forEach(fitFld);
+    document.addEventListener('input', e => { const f = e.target.closest && e.target.closest('.fld'); if (f) fitFld(f) });
+    addEventListener('resize', fitAll); new ResizeObserver(fitAll).observe(document.body);
+    function addSteppers(root) {
+      root.querySelectorAll('.fld > input[type=number]').forEach(inp => {
+        if (inp.parentNode.querySelector('.stp')) return;
+        const d = document.createElement('span'); d.className = 'stp';
+        d.innerHTML = `<button type="button" class="u" tabindex="-1" data-d="1" aria-label="Increase">${I(IC.chev)}</button><button type="button" tabindex="-1" data-d="-1" aria-label="Decrease">${I(IC.chev)}</button>`;
+        inp.parentNode.append(d)
+      })
+    }
+    function stepInput(inp, dir, big) {
+      if (inp.disabled) return;
+      const k = inp.dataset.k, st = STEP[k] ? STEP[k][+big] : big ? 10 : 1, mn = inp.min !== '' ? +inp.min : -Infinity, mx = inp.max !== '' ? +inp.max : Infinity;
+      const step = big && snapOn() && (k == 'x' || k == 'y') ? GRID.size : st;
+      inp.value = Math.max(mn, Math.min(mx, Math.round((+inp.value || 0) + dir * step)));
+      inp.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+    document.addEventListener('pointerdown', e => {
+      const b = e.target.closest('.stp button'); if (!b) return;
+      e.preventDefault();
+      const inp = b.closest('.fld').querySelector('input'), dir = +b.dataset.d; let tm, iv;
+      stepInput(inp, dir, e.shiftKey);
+      tm = setTimeout(() => { iv = setInterval(() => stepInput(inp, dir, e.shiftKey), 60) }, 380);
+      const end = () => { clearTimeout(tm); clearInterval(iv); removeEventListener('pointerup', end); removeEventListener('pointercancel', end) };
+      addEventListener('pointerup', end); addEventListener('pointercancel', end)
+    });
+    function syncGrid() {
+      gp.querySelector('[data-g=on]').textContent = GRID.on ? 'On' : 'Off';
+      gp.querySelector('[data-g=on]').classList.toggle('on', GRID.on);
+      gp.querySelector('[data-g=snap]').textContent = GRID.snap ? 'On' : 'Off';
+      gp.querySelector('[data-g=snap]').classList.toggle('on', GRID.snap);
+      const si = gp.querySelector('input[data-g=size]'); if (document.activeElement != si) si.value = GRID.size;
+      gp.querySelectorAll('[data-g=mode]').forEach(b => b.classList.toggle('on', b.dataset.m == GRID.mode));
+      gp.querySelectorAll('[data-g=color]').forEach(b => b.classList.toggle('on', b.dataset.c == GRID.color));
+      gp.querySelectorAll('[data-g=sz]').forEach(b => b.classList.toggle('on', +b.dataset.n == GRID.size));
+      document.querySelectorAll('[data-a=grid]').forEach(b => b.classList.toggle('on', GRID.on))
+    }
+    function openGridPop(force) {
+      const on = typeof force == 'boolean' ? force : !gp.classList.contains('on');
+      gp.classList.toggle('on', on); if (!on) return;
+      syncGrid();
+      const b = document.querySelector('#pill [data-a=grid]'); if (!b) return;
+      const r = b.getBoundingClientRect(), w = gp.offsetWidth, h = gp.offsetHeight;
+      gp.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+      gp.style.top = (r.top - h - 10 >= 8 ? r.top - h - 10 : Math.min(innerHeight - h - 8, r.bottom + 10)) + 'px'
+    }
+    gp.addEventListener('click', e => {
+      const b = e.target.closest('[data-g]'); if (!b) return; const k = b.dataset.g;
+      if (k == 'on') GRID.on = !GRID.on; else if (k == 'snap') GRID.snap = !GRID.snap;
+      else if (k == 'mode') GRID.mode = b.dataset.m; else if (k == 'color') GRID.color = b.dataset.c; else if (k == 'sz') GRID.size = +b.dataset.n; else return;
+      if (k != 'on' && k != 'snap' && k != 'mode') GRID.on = true;
+      saveGrid(); syncGrid(); render()
+    });
+    gp.addEventListener('input', e => {
+      if (e.target.dataset.g != 'size') return;
+      const v = Math.round(+e.target.value); if (v >= 1 && v <= 500) { GRID.size = v; GRID.on = true; saveGrid(); syncGrid(); render() }
+    });
+    document.addEventListener('pointerdown', e => { if (!e.target.closest('#gridPop,[data-a=grid]')) gp.classList.remove('on') });
+    addEventListener('resize', () => gp.classList.remove('on'));
+
     function togglePip(force) {
       isPip = typeof force == 'boolean' ? force : !isPip;
+      if (isPip && isZoom) toggleZoomTool(false);
       stg.classList.toggle('pip', isPip);
       if (isPip) {
         prepPick();
@@ -1609,7 +1981,10 @@
       }
     }
 
+    let panning = null, spaceDown = false;
     stg.onpointerdown = e => {
+      if (spaceDown) { panning = { x: e.clientX, y: e.clientY, sl: stg.scrollLeft, st: stg.scrollTop }; stg.setPointerCapture(e.pointerId); stg.classList.add('grabbing'); return }
+      if (isZoom) { zoomAt(e.altKey || e.shiftKey ? 1 / 1.6 : 1.6, e.clientX, e.clientY); return }
       if (isPip) {
         const c = samplePt(e);
         if (c) { L().hex = c; toast('Picked ' + c); togglePip(false); render() } else togglePip(false);
@@ -1640,6 +2015,8 @@
     };
 
     stg.onpointermove = e => {
+      if (panning) { stg.scrollLeft = panning.sl - (e.clientX - panning.x); stg.scrollTop = panning.st - (e.clientY - panning.y); return }
+      if (isZoom) { stg.style.cursor = e.altKey || e.shiftKey ? 'zoom-out' : 'zoom-in'; return }
       if (isPip) {
         const c = samplePt(e), lp = $('#loupe'), pr = $('#pipReticle');
         pr.style.left = e.clientX + 'px';
@@ -1684,8 +2061,7 @@
       if (drag) {
         if (lp && Math.hypot(e.clientX - drag.cx, e.clientY - drag.cy) > 8) cancelLP();
         const l = L();
-        l.x = Math.round(px + drag.dx);
-        l.y = Math.round(py + drag.dy);
+        [l.x, l.y] = snapInk(l, px + drag.dx, py + drag.dy, e);
         render()
       } else if (e.pointerType == 'mouse' && !ptrs.size) {
         stg.style.cursor = curFor(zone(px, py, false))
@@ -1700,6 +2076,8 @@
     };
 
     stg.onpointerup = stg.onpointercancel = e => {
+      if (panning) { panning = null; stg.classList.remove('grabbing'); return }
+      if (snapGuide) { snapGuide = null; render() }
       rs = rt = null; ptrs.delete(e.pointerId); cancelLP();
       if (ptrs.size < 2) g = null;
       if (ptrs.size == 0) drag = null
@@ -1708,7 +2086,7 @@
     $('#stage').addEventListener('wheel', e => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
-        setZoom(zoom * (e.deltaY < 0 ? 1.1 : .9))
+        userZoom = true; setZoom(zoom * (e.deltaY < 0 ? 1.1 : .9))
       }
     }, { passive: false });
 
@@ -1723,8 +2101,10 @@
 <div class="r2"><button class="btn chip" data-cp="xy">Coordinates<b data-v="xy"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="ang">Angle<b data-v="ang"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="fs">Font size<b data-v="fs"></b><span class="ci">${I(IC.cp)}</span></button><button class="btn chip" data-cp="hex">Hex<b data-v="hex"></b><span class="ci">${I(IC.cp)}</span></button></div>
 <button class="btn" data-cp="all">${I(IC.cp)} Copy all values</button></div></div>`;
 
-    const PILL = [['undo', 'Undo (Ctrl+Z)', 'undo'], ['redo', 'Redo (Ctrl+Y)', 'redo'], '-', ['pipette', 'Pick color from canvas (I)', 'pipette'], '-', ['mn', 'Zoom out (-)', 'zo'], ['pl', 'Zoom in (+)', 'zi'], ['fit', 'Fit (0)', 'fit']];
-    $('#pill').innerHTML = PILL.map(x => x == '-' ? '<hr>' : `<button class="btn" data-tip="${x[1]}" data-a="${x[2]}">${I(IC[x[0]])}</button>`).join('');
+    addSteppers(document.body); fitAll();
+    const PILL = [['undo', 'Undo (Ctrl+Z)', 'undo'], ['redo', 'Redo (Ctrl+Y)', 'redo'], '-', ['pipette', 'Pick color from canvas (I)', 'pipette'], '-', ['mn', 'Zoom out (-)', 'zo'], 'ZL', ['pl', 'Zoom in (+)', 'zi'], ['fit', 'Fit (0)', 'fit'], '-', ['grid', 'Grid & snapping (G)', 'grid']];
+    $('#pill').innerHTML = PILL.map(x => x == '-' ? '<hr>' : x == 'ZL' ? '<button class="btn zlbl" data-tip="Reset to 100% (1)" data-a="z100">100%</button>' : `<button class="btn" data-tip="${x[1]}" data-a="${x[2]}">${I(IC[x[0]])}</button>`).join('');
+    syncGrid(); document.querySelectorAll('.zlbl').forEach(b => b.textContent = Math.round(zoom * 100) + '%');
 
     const ddl = document.createElement('div'); ddl.className = 'ddl';
     function cleanDisplayName(name) {
@@ -1835,6 +2215,7 @@
       const t = T(); if (!t) return;
       const l = L(); if (!l) return;
       document.querySelectorAll('#side [data-k]').forEach(el => { if (document.activeElement != el) el.value = l[el.dataset.k] });
+      try { fitAll() } catch (e) { }
       $('#side .sw').style.background = l.hex; $('#side [data-eye]').classList.toggle('on', l.on);
       document.querySelectorAll('#lsel [data-sel]').forEach(b => b.classList.toggle('on', b.dataset.sel == t.sel));
       document.querySelectorAll('[data-a^=al]').forEach(b => b.classList.toggle('on', l.al == b.dataset.a.slice(3)));
@@ -1842,6 +2223,7 @@
       document.querySelector('[data-a=undo]').disabled = t.hp < 1;
       document.querySelector('[data-a=redo]').disabled = t.hp >= t.hist.length - 1;
       document.querySelectorAll('[data-a=pipette]').forEach(b => b.classList.toggle('on', isPip));
+      document.querySelectorAll('[data-a=ztool]').forEach(b => b.classList.toggle('on', isZoom));
       updSug();
 
       const lk = t.size == 'T1';
@@ -1937,13 +2319,16 @@
       if (a == 'upl') return $('#file').click();
       if (a == 'rmImg') return resetImage();
       if (a == 'pipette') return togglePip();
+      if (a == 'ztool') return toggleZoomTool();
+      if (a == 'grid') return openGridPop();
+      if (a == 'z100') return zoomMid(1 / zoom);
       if (a.startsWith('sel')) t.sel = +a[3];
       else if (a.startsWith('al')) l.al = a.slice(3);
       else if (a == 'mir') l.mir = !l.mir;
       else if (a == 'undo') return undo(-1);
       else if (a == 'redo') return undo(1);
-      else if (a == 'zi') return setZoom(zoom * 1.25);
-      else if (a == 'zo') return setZoom(zoom / 1.25);
+      else if (a == 'zi') return zoomMid(1.25);
+      else if (a == 'zo') return zoomMid(1 / 1.25);
       else if (a == 'fit') return fit();
       render();
     }
@@ -1964,6 +2349,7 @@
       void cw.offsetWidth;
       cw.classList.add('morph');
       setTimeout(() => cw.classList.remove('morph'), 430);
+      { const t0 = performance.now(); (function loop() { render(); if (performance.now() - t0 < 520) requestAnimationFrame(loop) })() }
 
       if (s === 'T1') {
         t.layers.forEach(l => {
@@ -2163,8 +2549,14 @@
     };
     document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop,[data-sw]')) $('#pop').classList.remove('on') });
 
+    const setSpace = v => { spaceDown = v; stg.classList.toggle('pan', v); if (!v) { panning = null; stg.classList.remove('grabbing') } };
+    addEventListener('keyup', e => { if (e.key === ' ') setSpace(false) });
+    addEventListener('blur', () => setSpace(false));
     document.addEventListener('keydown', e => {
       const k = e.key, m = e.ctrlKey || e.metaKey;
+      if (k === ' ' && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); if (!spaceDown) setSpace(true); return }
+      if (k === 'Escape' && gp.classList.contains('on')) return openGridPop(false);
+      if (k === 'Escape' && isZoom) return toggleZoomTool(false);
       if (k === 'Escape' && isPip) return togglePip(false);
       if (m && !/INPUT|SELECT/.test(e.target.tagName)) {
         const c = k.toLowerCase();
@@ -2177,7 +2569,9 @@
       if (/INPUT|SELECT/.test(e.target.tagName) || m) return;
       const l = L(), s = e.shiftKey, c = k.toLowerCase(), a = { ArrowLeft: ['x', -1], ArrowRight: ['x', 1], ArrowUp: ['y', -1], ArrowDown: ['y', 1] }[k];
       if (c == 'i') return togglePip();
-      if (a) { e.preventDefault(); l[a[0]] += a[1] * (s ? 10 : 1) }
+      if (c == 'g') { GRID.on = !GRID.on; saveGrid(); syncGrid(); return render() }
+      if (k == '1') return act('z100');
+      if (a) { e.preventDefault(); l[a[0]] += a[1] * (s ? (snapOn() ? GRID.size : 10) : 1) }
       else if (k == '[' || k == '{') l.fs = Math.max(1, l.fs - (s ? 10 : 1));
       else if (k == ']' || k == '}') l.fs += s ? 10 : 1;
       else if (k == ',' || k == '<') l.ang -= s ? 15 : 1;
@@ -2228,7 +2622,7 @@
 
     stg.oncontextmenu = e => { e.preventDefault(); showCtx(e.clientX, e.clientY) };
     document.addEventListener('pointerdown', e => { if (!e.target.closest('.ctx')) ctxm.classList.remove('on') });
-    new ResizeObserver(() => fit()).observe($('#stage'));
+    new ResizeObserver(() => { if (!userZoom) fit() }).observe($('#stage'));
 
     // Initialize state & mount
     tab = mk('T1');
